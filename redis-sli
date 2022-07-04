@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# USAGE: redis-sli mymastermymaster@192.168.56.1:26379/mymaster
+
+uri=$1
+pwd=`echo $uri | cut -d '@' -f 1`
+hostp=`echo $uri | cut -d '@' -f 2`
+host=`echo $hostp | cut -d ':' -f 1`
+portm=`echo $hostp | cut -d ':' -f 2`
+port=`echo $portm | cut -d '/' -f 1`
+mname=`echo $portm | cut -d '/' -f 2`
+
+if [ "$mname" = "$port" ]; then
+    mname="mymaster"
+fi
+master=`redis-cli -h $host -p $port SENTINEL get-master-addr-by-name $mname`
+
+host=`echo $master | cut -d ' ' -f 1`
+port=`echo $master | cut -d ' ' -f 2`
+
+redis-cli -h $host -p $port -a $pwd 
